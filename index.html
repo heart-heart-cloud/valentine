@@ -192,21 +192,9 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Smooth but fast movement setup */
-noBtn.style.position = "fixed";
-noBtn.style.zIndex = "9999";
-// Use a very fast transition to keep it "gliding"
-noBtn.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
-
-function randomPosition() {
-    const rect = noBtn.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width;
-    const maxY = window.innerHeight - rect.height;
-    noBtn.style.left = Math.random() * maxX + "px";
-    noBtn.style.top = Math.random() * maxY + "px";
-}
-
-randomPosition();
+/* Initial Setup: Keep it near Yes button at start */
+noBtn.style.position = "absolute"; 
+noBtn.style.transition = "all 0.3s ease-out"; // Smoother glide, not a "storm"
 
 let mouseX = 0;
 let mouseY = 0;
@@ -216,7 +204,24 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.clientY;
 });
 
-/* THE UNSTOPPABLE GLIDE ENGINE */
+function showToast(x, y) {
+    const toast = document.createElement("div");
+    toast.textContent = "You can't click me! 😜";
+    toast.style.position = "fixed";
+    toast.style.left = x + "px";
+    toast.style.top = (y - 30) + "px";
+    toast.style.background = "#ff4d6d";
+    toast.style.color = "white";
+    toast.style.padding = "5px 10px";
+    toast.style.borderRadius = "10px";
+    toast.style.fontSize = "0.8rem";
+    toast.style.zIndex = "10000";
+    toast.style.pointerEvents = "none";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 1000);
+}
+
+/* THE SLIPPERY ENGINE */
 function repelLoop() {
     if (!noBtnActive) return;
 
@@ -228,32 +233,25 @@ function repelLoop() {
     const dy = centerY - mouseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Detection zone: the closer you get, the further it pushes
-    if (distance < 250) {
+    // Only starts moving when mouse is within 150px
+    if (distance < 150) {
+        // Change to fixed once the game starts so it can move anywhere
+        noBtn.style.position = "fixed"; 
+
         const angle = Math.atan2(dy, dx);
-        
-        // Dynamic push: if the user is super close, push harder
-        const force = distance < 80 ? 400 : 250; 
+        const moveDist = 200; // Controlled jump distance
 
-        let newX = rect.left + Math.cos(angle) * force;
-        let newY = rect.top + Math.sin(angle) * force;
+        let newX = rect.left + Math.cos(angle) * moveDist;
+        let newY = rect.top + Math.sin(angle) * moveDist;
 
-        const maxX = window.innerWidth - rect.width;
-        const maxY = window.innerHeight - rect.height;
+        const maxX = window.innerWidth - rect.width - 20;
+        const maxY = window.innerHeight - rect.height - 20;
 
-        /* BOUNDARY BOUNCE: Instead of stopping at the wall, 
-           it "slides" along the edge or bounces away */
-        if (newX < 0) newX = 50;
+        // Keep inside screen boundaries but bounce off walls
+        if (newX < 20) newX = 50;
         if (newX > maxX) newX = maxX - 50;
-        if (newY < 0) newY = 50;
+        if (newY < 20) newY = 50;
         if (newY > maxY) newY = maxY - 50;
-
-        // If it's trapped in a corner (close to both edges), 
-        // force it to move toward the center
-        if ((newX <= 50 || newX >= maxX - 50) && (newY <= 50 || newY >= maxY - 50)) {
-            newX = window.innerWidth / 2 + (Math.random() * 100 - 50);
-            newY = window.innerHeight / 2 + (Math.random() * 100 - 50);
-        }
 
         noBtn.style.left = newX + "px";
         noBtn.style.top = newY + "px";
@@ -264,14 +262,25 @@ function repelLoop() {
 
 requestAnimationFrame(repelLoop);
 
-/* Ultimate Block: If they manage a frame-perfect click, jump away */
-noBtn.addEventListener("mouseover", () => {
-    if (noBtnActive) randomPosition();
-});
-
-noBtn.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    randomPosition();
+/* 10% Chance to catch it - but it still triggers a tease */
+noBtn.addEventListener("click", (e) => {
+    if (!noBtnActive) return;
+    
+    // 90% of the time, it jumps away even if you click
+    if (Math.random() < 0.9) {
+        const rect = noBtn.getBoundingClientRect();
+        showToast(rect.left, rect.top);
+        
+        // Instant escape
+        const maxX = window.innerWidth - rect.width;
+        const maxY = window.innerHeight - rect.height;
+        noBtn.style.left = Math.random() * maxX + "px";
+        noBtn.style.top = Math.random() * maxY + "px";
+    } else {
+        // The lucky 10% - you can add a specific action here if you want
+        const rect = noBtn.getBoundingClientRect();
+        showToast(rect.left, rect.top);
+    }
 });
 
 /* YES CLICK */
@@ -300,6 +309,5 @@ yesBtn.addEventListener("click", () => {
     noBtn.style.pointerEvents = "none";
 });
 </script>
-
 </body>
 </html>
