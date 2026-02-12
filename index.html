@@ -238,97 +238,138 @@
         </div>
     </div>
 
-
-    <script>
-(function(){
-
+<script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
 const body = document.body;
 const balloonContainer = document.getElementById("heartBalloonContainer");
 
 let noBtnActive = true;
-let escaped = false;
 
-/* Floating Hearts */
-for(let i=0;i<20;i++){
-    const heart=document.createElement("div");
-    heart.className="heart-balloon";
-    heart.textContent=["❤️","💖","💘","💕","💝","💓"][Math.floor(Math.random()*6)];
-    heart.style.left=Math.random()*100+"vw";
-    heart.style.animationDuration=(12+Math.random()*10)+"s";
-    heart.style.fontSize=(1.5+Math.random()*2)+"rem";
-    balloonContainer.appendChild(heart);
+/* Floating hearts */
+function createHeartBalloons() {
+    const hearts = ['❤️','💖','💘','💕','💝','💓'];
+    for (let i = 0; i < 20; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart-balloon";
+        heart.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+        heart.style.left = Math.random()*100 + "vw";
+        heart.style.animationDuration = (12 + Math.random()*10) + "s";
+        heart.style.fontSize = (1.5 + Math.random()*2) + "rem";
+        balloonContainer.appendChild(heart);
+    }
 }
+createHeartBalloons();
 
-/* --- Gentle Playable NO Button --- */
+/* Make NO fixed */
+noBtn.style.position = "fixed";
+noBtn.style.zIndex = "9999";
+noBtn.style.transition = "left 0.12s linear, top 0.12s linear";
 
-function activateEscapeMode(){
-    if(escaped) return;
+/* Initial position */
+let posX = window.innerWidth / 2;
+let posY = window.innerHeight / 2;
 
+updatePosition();
+
+function updatePosition() {
     const rect = noBtn.getBoundingClientRect();
-    noBtn.style.position = "fixed";
-    noBtn.style.left = rect.left + "px";
-    noBtn.style.top = rect.top + "px";
-    noBtn.style.transition = "left 0.4s ease, top 0.4s ease"; /* SLOW */
-    noBtn.style.zIndex = "9999";
-    escaped = true;
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
+
+    posX = Math.max(0, Math.min(posX, maxX));
+    posY = Math.max(0, Math.min(posY, maxY));
+
+    noBtn.style.left = posX + "px";
+    noBtn.style.top = posY + "px";
 }
 
-function slightMove(){
-    const rect = noBtn.getBoundingClientRect();
+/* Track cursor continuously */
+let mouseX = 0;
+let mouseY = 0;
 
-    const moveX = (Math.random() - 0.5) * 80;  // small movement
-    const moveY = (Math.random() - 0.5) * 50;  // small movement
-
-    let newX = rect.left + moveX;
-    let newY = rect.top + moveY;
-
-    newX = Math.max(10, Math.min(newX, window.innerWidth - rect.width - 10));
-    newY = Math.max(10, Math.min(newY, window.innerHeight - rect.height - 10));
-
-    noBtn.style.left = newX + "px";
-    noBtn.style.top = newY + "px";
-}
-
-/* Only move when hover */
-noBtn.addEventListener("mouseenter", ()=>{
-    if(!noBtnActive) return;
-    activateEscapeMode();
-    slightMove();
+document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
 });
 
-/* Prevent click */
-noBtn.addEventListener("pointerdown", e=>{
+/* Continuous repulsion engine */
+function repelLoop() {
+    if (!noBtnActive) return;
+
+    const rect = noBtn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const dx = centerX - mouseX;
+    const dy = centerY - mouseY;
+
+    const distance = Math.sqrt(dx*dx + dy*dy);
+
+    const triggerRadius = 170;
+
+    if (distance < triggerRadius) {
+        const force = (triggerRadius - distance) / triggerRadius;
+
+        const moveX = (dx / distance) * force * 40;
+        const moveY = (dy / distance) * force * 40;
+
+        posX += moveX;
+        posY += moveY;
+
+        updatePosition();
+    }
+
+    requestAnimationFrame(repelLoop);
+}
+
+requestAnimationFrame(repelLoop);
+
+/* Mobile */
+document.addEventListener("touchmove", (e) => {
+    if (!noBtnActive) return;
+    const touch = e.touches[0];
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
+});
+
+/* Prevent click fully */
+noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
+    e.stopImmediatePropagation();
 });
 
-/* YES CLICK */
-yesBtn.addEventListener("click", ()=>{
-    noBtnActive=false;
+noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+});
+
+/* YES click */
+yesBtn.addEventListener("click", () => {
+    noBtnActive = false;
     body.classList.add("romantic-bg");
 
-    for(let i=0;i<70;i++){
-        const confetti=document.createElement("div");
-        confetti.className="confetti-heart";
-        confetti.textContent=["❤️","💖","💘","💕","💝"][Math.floor(Math.random()*5)];
-        confetti.style.left=Math.random()*100+"%";
-        confetti.style.fontSize=(1+Math.random()*2)+"rem";
-        confetti.style.animationDuration=(2+Math.random()*2)+"s";
+    const symbols = ['❤️','💖','💘','💕','💝'];
+    for (let i = 0; i < 60; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti-heart";
+        confetti.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+        confetti.style.left = Math.random()*100 + "%";
+        confetti.style.fontSize = (1 + Math.random()*2) + "rem";
+        confetti.style.animationDuration = (2 + Math.random()*2) + "s";
         document.body.appendChild(confetti);
         setTimeout(()=>confetti.remove(),4000);
     }
 
-    const popup=document.createElement("div");
-    popup.className="popup";
-    popup.innerHTML="<p>💌 I knew you would say YES ❤️<br><span>Happy Valentine's Day My Love 🌹✨</span></p>";
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    popup.innerHTML = "💌 I knew you would say YES ❤️<br><br>Happy Valentine's Day 🌹✨";
     document.body.appendChild(popup);
 
-    noBtn.style.opacity="0.3";
-    noBtn.style.pointerEvents="none";
+    noBtn.style.opacity = "0.3";
+    noBtn.style.pointerEvents = "none";
 });
-
-})();
 </script>
+
 </body>
 </html>
