@@ -168,6 +168,7 @@ audio {
         <button class="btn no" id="noBtn">NO</button>
     </div>
 </div>
+
 <script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
@@ -191,15 +192,15 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Make NO fully independent of container */
+/* Make NO fully free */
 noBtn.style.position = "fixed";
 noBtn.style.zIndex = "9999";
-noBtn.style.transition = "left 0.18s ease-out, top 0.18s ease-out";
+noBtn.style.transition = "left 0.12s cubic-bezier(.17,.67,.83,.67), top 0.12s cubic-bezier(.17,.67,.83,.67)";
 
 /* Start random */
 randomPosition();
 
-/* Random position anywhere */
+/* Random full-screen position */
 function randomPosition() {
     const rect = noBtn.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width;
@@ -209,7 +210,7 @@ function randomPosition() {
     noBtn.style.top = Math.random() * maxY + "px";
 }
 
-/* Track cursor */
+/* Track mouse */
 let mouseX = 0;
 let mouseY = 0;
 
@@ -218,7 +219,7 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.clientY;
 });
 
-/* Repel engine */
+/* SUPER AGGRESSIVE ESCAPE */
 function repelLoop() {
     if (!noBtnActive) return;
 
@@ -228,21 +229,21 @@ function repelLoop() {
 
     const dx = centerX - mouseX;
     const dy = centerY - mouseY;
-
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    const triggerRadius = 200; // larger reaction zone
+    const triggerRadius = 250; // much larger detection
 
     if (distance < triggerRadius) {
-        // Move far in opposite direction
+
+        // Opposite direction angle
         const angle = Math.atan2(dy, dx);
 
-        const escapeDistance = 180; // how far it jumps
+        // VERY LARGE escape distance
+        const escapeDistance = 350 + Math.random() * 200;
 
         let newX = rect.left + Math.cos(angle) * escapeDistance;
         let newY = rect.top + Math.sin(angle) * escapeDistance;
 
-        // Keep inside full screen
         const maxX = window.innerWidth - rect.width;
         const maxY = window.innerHeight - rect.height;
 
@@ -258,7 +259,7 @@ function repelLoop() {
 
 requestAnimationFrame(repelLoop);
 
-/* Block clicks completely */
+/* Block click fully */
 noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
@@ -290,6 +291,5 @@ yesBtn.addEventListener("click", () => {
     noBtn.style.pointerEvents = "none";
 });
 </script>
-
 </body>
 </html>
