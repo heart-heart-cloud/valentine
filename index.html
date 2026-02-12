@@ -1,242 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Will you be my Valentine? ❤️</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Will you be my Valentine? ❤️</title>
 
-        body {
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at 10% 30%, #ffe0f0, #ffc0cb);
-            background-size: 200% 200%;
-            min-height: 100vh;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* FULL no scroll */
-            position: relative;
-            transition: background 2.2s ease, opacity 1.5s ease;
-        }
-        /* romantic overlay – when YES clicked, we add class .romantic-bg */
-        body.romantic-bg {
-            background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 60%, #ffe5b4 100%);
-            background-size: 400% 400%;
-            animation: gradientFlow 8s ease infinite;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+body {
+    font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+    background: radial-gradient(circle at 10% 30%, #ffe0f0, #ffc0cb);
+    background-size: 200% 200%;
+    min-height: 100vh;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    transition: background 2.2s ease;
+}
 
-        .container {
-            text-align: center;
-            padding: 2rem 1.5rem;
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 48px;
-            box-shadow: 0 20px 40px rgba(233, 30, 99, 0.2);
-            max-width: 600px;
-            width: 90%;
-            margin: 20px;
-            border: 2px solid rgba(255, 220, 240, 0.7);
-            transition: all 0.4s;
-            z-index: 100;
-            position: relative;
-        }
+body.romantic-bg {
+    background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 60%, #ffe5b4 100%);
+    background-size: 400% 400%;
+    animation: gradientFlow 8s ease infinite;
+}
 
-        h1 {
-            font-size: 2.4rem;
-            font-weight: 700;
-            color: #b32e5a;
-            text-shadow: 4px 4px 12px rgba(255, 200, 220, 0.8);
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            word-break: break-word;
-        }
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
-        .button-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            position: relative;
-        }
+.container {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 48px;
+    box-shadow: 0 20px 40px rgba(233, 30, 99, 0.2);
+    max-width: 600px;
+    width: 90%;
+    border: 2px solid rgba(255, 220, 240, 0.7);
+}
 
-        .btn {
-            font-size: 1.8rem;
-            font-weight: 600;
-            padding: 16px 40px;
-            border: none;
-            border-radius: 80px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-            letter-spacing: 3px;
-            position: relative;
-            z-index: 10;
-        }
+h1 {
+    font-size: 2.4rem;
+    color: #b32e5a;
+    margin-bottom: 30px;
+}
 
-        .yes {
-            background: #ff4d6d;
-            color: white;
-            border: 2px solid #fff0f3;
-            box-shadow: 0 0 20px #ff8cae;
-        }
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
 
-        .yes:hover {
-            background: #ff1a4c;
-            transform: scale(1.05);
-            box-shadow: 0 0 32px #ff4d6d;
-        }
+.btn {
+    font-size: 1.8rem;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 80px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all .25s ease;
+}
 
-        .no {
-            background: #aaa;
-            color: #3a2a2a;
-            border: 2px solid #ddd;
-            box-shadow: 0 8px 0 #6b6b6b;
-            transition: left 0.1s ease, top 0.1s ease, right 0.1s ease, bottom 0.1s ease, transform 0.1s, font-size 0.1s, padding 0.1s, background 0.2s;
-            position: relative; /* will be absolute after move, but start static */
-            will-change: transform, left, top, font-size, padding;
-        }
+.yes {
+    background: #ff4d6d;
+    color: white;
+}
 
-        /* style for when NO is on the run – absolute positioning */
-        .no.evasive {
-            position: absolute;
-            margin: 0;
-            width: auto;
-            white-space: nowrap;
-            z-index: 999;
-            background: #b0b0b0;
-            box-shadow: 0 4px 0 #5a5a5a;
-        }
+.yes:hover {
+    transform: scale(1.05);
+}
 
-        /* Heart balloons — floating around */
-        .heart-balloon {
-            position: fixed;
-            font-size: 2.2rem;
-            opacity: 0.8;
-            user-select: none;
-            pointer-events: none;
-            z-index: 1;
-            filter: drop-shadow(0 8px 6px rgba(255, 80, 120, 0.3));
-            animation: float 14s infinite ease-in-out;
-            bottom: -10vh;
-            will-change: transform, left, top;
-        }
+.no {
+    background: #aaa;
+    color: #3a2a2a;
+    border: 2px solid #ddd;
+    box-shadow: 0 8px 0 #6b6b6b;
+    position: relative;
+    transition: transform 0.25s ease;
+}
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-            50% { transform: translateY(-30vh) rotate(8deg); opacity: 1; }
-            100% { transform: translateY(-110vh) rotate(-6deg); opacity: 0.2; }
-        }
+/* Floating Hearts */
+.heart-balloon {
+    position: fixed;
+    font-size: 2rem;
+    bottom: -10vh;
+    pointer-events: none;
+    animation: float 14s infinite ease-in-out;
+}
 
-        /* Confetti hearts — when YES clicked */
-        .confetti-heart {
-            position: fixed;
-            font-size: 1.8rem;
-            pointer-events: none;
-            z-index: 9999;
-            animation: confettiFall 3s ease-out forwards;
-            color: #ff3366;
-            filter: drop-shadow(0 0 6px rgba(255, 50, 100, 0.9));
-        }
+@keyframes float {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-110vh); }
+}
 
-        @keyframes confettiFall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(480deg); opacity: 0; }
-        }
+/* Confetti */
+.confetti-heart {
+    position: fixed;
+    pointer-events: none;
+    animation: confettiFall 3s ease-out forwards;
+}
 
-        /* Popup message — romantic & cute */
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 245, 245, 0.95);
-            backdrop-filter: blur(16px);
-            padding: 36px 28px;
-            border-radius: 60px 20px 60px 20px;
-            box-shadow: 0 30px 50px rgba(199, 21, 133, 0.4);
-            border: 4px solid white;
-            z-index: 10000;
-            text-align: center;
-            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            max-width: 450px;
-            width: 80%;
-        }
+@keyframes confettiFall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(480deg); opacity:0; }
+}
 
-        @keyframes popIn {
-            0% { scale: 0.2; opacity: 0; }
-            100% { scale: 1; opacity: 1; }
-        }
-
-        .popup p {
-            font-size: 2rem;
-            color: #b34167;
-            font-weight: bold;
-            line-height: 1.4;
-            text-shadow: 2px 2px 0 #ffe3ec;
-        }
-
-        .popup span {
-            font-size: 1.2rem;
-            color: #6d2e4a;
-            display: block;
-            margin-top: 15px;
-            letter-spacing: 2px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        audio {
-            display: none;
-        }
-
-        /* small shrink for NO each hover/click */
-        .no-shrink {
-            font-size: 1.5rem !important;
-            padding: 12px 30px !important;
-        }
-
-        /* Mobile fine-tuning */
-        @media (max-width: 550px) {
-            h1 { font-size: 2rem; }
-            .btn { font-size: 1.5rem; padding: 14px 28px; }
-            .button-wrapper { gap: 15px; }
-        }
-        @media (max-width: 380px) {
-            h1 { font-size: 1.8rem; }
-            .btn { font-size: 1.2rem; padding: 12px 20px; }
-        }
-    </style>
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,245,245,.95);
+    padding: 36px 28px;
+    border-radius: 40px;
+    text-align: center;
+    box-shadow: 0 30px 50px rgba(199,21,133,.4);
+}
+</style>
 </head>
-<body id="mainBody">
 
-    <!-- Floating heart balloons (generated by JS, but static backup) -->
-    <div id="heartBalloonContainer"></div>
+<body>
 
-    <!-- Main card -->
-    <div class="container" id="mainCard">
-        <h1>💝 Will you be my Valentine? 💝</h1>
-        <div class="button-wrapper" id="buttonWrapper">
-            <button class="btn yes" id="yesBtn">YES</button>
-            <button class="btn no" id="noBtn">NO</button>
-        </div>
-    </div>
+<div id="heartBalloonContainer"></div>
+
+<div class="container">
+<h1>💝 Will you be my Valentine? 💝</h1>
+<div class="button-wrapper">
+<button class="btn yes" id="yesBtn">YES</button>
+<button class="btn no" id="noBtn">NO</button>
+</div>
+</div>
 
 <script>
 const noBtn = document.getElementById("noBtn");
@@ -246,128 +150,85 @@ const balloonContainer = document.getElementById("heartBalloonContainer");
 
 let noBtnActive = true;
 
-/* Floating hearts */
-function createHeartBalloons() {
-    const hearts = ['❤️','💖','💘','💕','💝','💓'];
-    for (let i = 0; i < 20; i++) {
-        const heart = document.createElement("div");
-        heart.className = "heart-balloon";
-        heart.textContent = hearts[Math.floor(Math.random()*hearts.length)];
-        heart.style.left = Math.random()*100 + "vw";
-        heart.style.animationDuration = (12 + Math.random()*10) + "s";
-        heart.style.fontSize = (1.5 + Math.random()*2) + "rem";
-        balloonContainer.appendChild(heart);
-    }
-}
-createHeartBalloons();
-
-/* Make NO fixed */
-noBtn.style.position = "fixed";
-noBtn.style.zIndex = "9999";
-noBtn.style.transition = "left 0.12s linear, top 0.12s linear";
-
-/* Initial position */
-let posX = window.innerWidth / 2;
-let posY = window.innerHeight / 2;
-
-updatePosition();
-
-function updatePosition() {
-    const rect = noBtn.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width;
-    const maxY = window.innerHeight - rect.height;
-
-    posX = Math.max(0, Math.min(posX, maxX));
-    posY = Math.max(0, Math.min(posY, maxY));
-
-    noBtn.style.left = posX + "px";
-    noBtn.style.top = posY + "px";
+/* Floating Hearts */
+for(let i=0;i<20;i++){
+    const heart=document.createElement("div");
+    heart.className="heart-balloon";
+    heart.textContent=["❤️","💖","💘","💕","💝","💓"][Math.floor(Math.random()*6)];
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.animationDuration=(12+Math.random()*10)+"s";
+    heart.style.fontSize=(1.5+Math.random()*2)+"rem";
+    balloonContainer.appendChild(heart);
 }
 
-/* Track cursor continuously */
-let mouseX = 0;
-let mouseY = 0;
+/* Slight Playful Movement */
+let offsetX = 0;
+let offsetY = 0;
 
-document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-});
+function moveSlightly(dx, dy){
+    offsetX += dx;
+    offsetY += dy;
 
-/* Continuous repulsion engine */
-function repelLoop() {
-    if (!noBtnActive) return;
+    // limit total movement range (so it doesn’t fly away)
+    offsetX = Math.max(-20, Math.min(offsetX, 20));
+    offsetY = Math.max(-20, Math.min(offsetY, 20));
+
+    noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+}
+
+/* Move when cursor gets close */
+document.addEventListener("mousemove", (e)=>{
+    if(!noBtnActive) return;
 
     const rect = noBtn.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const centerX = rect.left + rect.width/2;
+    const centerY = rect.top + rect.height/2;
 
-    const dx = centerX - mouseX;
-    const dy = centerY - mouseY;
+    const dx = centerX - e.clientX;
+    const dy = centerY - e.clientY;
 
     const distance = Math.sqrt(dx*dx + dy*dy);
 
-    const triggerRadius = 170;
-
-    if (distance < triggerRadius) {
-        const force = (triggerRadius - distance) / triggerRadius;
-
-        const moveX = (dx / distance) * force * 40;
-        const moveY = (dy / distance) * force * 40;
-
-        posX += moveX;
-        posY += moveY;
-
-        updatePosition();
+    if(distance < 80){
+        const smallMoveX = (dx/distance) * 10;  // 4px movement
+        const smallMoveY = (dy/distance) * 10;
+        moveSlightly(smallMoveX, smallMoveY);
     }
-
-    requestAnimationFrame(repelLoop);
-}
-
-requestAnimationFrame(repelLoop);
-
-/* Mobile */
-document.addEventListener("touchmove", (e) => {
-    if (!noBtnActive) return;
-    const touch = e.touches[0];
-    mouseX = touch.clientX;
-    mouseY = touch.clientY;
 });
 
-/* Prevent click fully */
-noBtn.addEventListener("pointerdown", (e) => {
+/* Also move when directly hovered */
+noBtn.addEventListener("mouseenter", ()=>{
+    moveSlightly((Math.random()-0.5)*12, (Math.random()-0.5)*12);
+});
+
+/* Prevent clicking */
+noBtn.addEventListener("click", (e)=>{
     e.preventDefault();
-    e.stopImmediatePropagation();
 });
 
-noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-});
-
-/* YES click */
-yesBtn.addEventListener("click", () => {
-    noBtnActive = false;
+/* YES CLICK */
+yesBtn.addEventListener("click", ()=>{
+    noBtnActive=false;
     body.classList.add("romantic-bg");
 
-    const symbols = ['❤️','💖','💘','💕','💝'];
-    for (let i = 0; i < 60; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti-heart";
-        confetti.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-        confetti.style.left = Math.random()*100 + "%";
-        confetti.style.fontSize = (1 + Math.random()*2) + "rem";
-        confetti.style.animationDuration = (2 + Math.random()*2) + "s";
+    for(let i=0;i<60;i++){
+        const confetti=document.createElement("div");
+        confetti.className="confetti-heart";
+        confetti.textContent=["❤️","💖","💘","💕","💝"][Math.floor(Math.random()*5)];
+        confetti.style.left=Math.random()*100+"%";
+        confetti.style.fontSize=(1+Math.random()*2)+"rem";
+        confetti.style.animationDuration=(2+Math.random()*2)+"s";
         document.body.appendChild(confetti);
         setTimeout(()=>confetti.remove(),4000);
     }
 
-    const popup = document.createElement("div");
-    popup.className = "popup";
-    popup.innerHTML = "💌 I knew you would say YES ❤️<br><br>Happy Valentine's Day 🌹✨";
+    const popup=document.createElement("div");
+    popup.className="popup";
+    popup.innerHTML="<p>💌 I knew you would say YES ❤️<br><br>Happy Valentine's Day 🌹✨</p>";
     document.body.appendChild(popup);
 
-    noBtn.style.opacity = "0.3";
-    noBtn.style.pointerEvents = "none";
+    noBtn.style.opacity="0.3";
+    noBtn.style.pointerEvents="none";
 });
 </script>
 
