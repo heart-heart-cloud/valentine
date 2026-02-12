@@ -195,20 +195,22 @@ createHeartBalloons();
 /* Make NO fully free */
 noBtn.style.position = "fixed";
 noBtn.style.zIndex = "9999";
-noBtn.style.transition = "left 0.12s cubic-bezier(.17,.67,.83,.67), top 0.12s cubic-bezier(.17,.67,.83,.67)";
-
-/* Start random */
-randomPosition();
+// Faster transition for better evasion
+noBtn.style.transition = "left 0.1s ease-out, top 0.1s ease-out";
 
 /* Random full-screen position */
 function randomPosition() {
-    const rect = noBtn.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width;
-    const maxY = window.innerHeight - rect.height;
+    const btnWidth = noBtn.offsetWidth || 80;
+    const btnHeight = noBtn.offsetHeight || 40;
+    const maxX = window.innerWidth - btnWidth;
+    const maxY = window.innerHeight - btnHeight;
 
     noBtn.style.left = Math.random() * maxX + "px";
     noBtn.style.top = Math.random() * maxY + "px";
 }
+
+/* Start random */
+randomPosition();
 
 /* Track mouse */
 let mouseX = 0;
@@ -219,7 +221,7 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.clientY;
 });
 
-/* SUPER AGGRESSIVE ESCAPE */
+/* THE UNTOUCHABLE ENGINE */
 function repelLoop() {
     if (!noBtnActive) return;
 
@@ -231,27 +233,28 @@ function repelLoop() {
     const dy = centerY - mouseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    const triggerRadius = 250; // much larger detection
-
-    if (distance < triggerRadius) {
-
-        // Opposite direction angle
+    // If mouse gets way too close (snuck up on it), teleport away
+    if (distance < 60) {
+        randomPosition();
+    } 
+    // Normal evasion
+    else if (distance < 200) {
         const angle = Math.atan2(dy, dx);
+        const moveDist = 300;
 
-        // VERY LARGE escape distance
-        const escapeDistance = 350 + Math.random() * 200;
-
-        let newX = rect.left + Math.cos(angle) * escapeDistance;
-        let newY = rect.top + Math.sin(angle) * escapeDistance;
+        let newX = rect.left + Math.cos(angle) * moveDist;
+        let newY = rect.top + Math.sin(angle) * moveDist;
 
         const maxX = window.innerWidth - rect.width;
         const maxY = window.innerHeight - rect.height;
 
-        newX = Math.max(0, Math.min(newX, maxX));
-        newY = Math.max(0, Math.min(newY, maxY));
-
-        noBtn.style.left = newX + "px";
-        noBtn.style.top = newY + "px";
+        // If it hits a wall, DON'T stop, just jump to a new spot
+        if (newX <= 0 || newX >= maxX || newY <= 0 || newY >= maxY) {
+            randomPosition();
+        } else {
+            noBtn.style.left = newX + "px";
+            noBtn.style.top = newY + "px";
+        }
     }
 
     requestAnimationFrame(repelLoop);
@@ -259,10 +262,10 @@ function repelLoop() {
 
 requestAnimationFrame(repelLoop);
 
-/* Block click fully */
+/* Block click and touch fully */
 noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    e.stopImmediatePropagation();
+    randomPosition(); // Jump if they somehow manage to click
 });
 
 /* YES CLICK */
@@ -291,5 +294,6 @@ yesBtn.addEventListener("click", () => {
     noBtn.style.pointerEvents = "none";
 });
 </script>
+
 </body>
 </html>
