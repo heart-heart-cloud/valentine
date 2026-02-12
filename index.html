@@ -169,19 +169,13 @@ audio {
     </div>
 </div>
 
-<audio id="romanticMusic" loop>
-    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
-</audio>
 
 <script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
 const body = document.body;
 const balloonContainer = document.getElementById("heartBalloonContainer");
-const music = document.getElementById("romanticMusic");
 
-let currentX = 0;
-let currentY = 0;
 let noBtnActive = true;
 
 /* Floating heart balloons */
@@ -199,47 +193,76 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Smooth NO movement */
-function moveNoButton() {
+/* Make NO button fixed */
+noBtn.style.position = "fixed";
+noBtn.style.zIndex = "9999";
+noBtn.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+
+/* Start centered */
+let posX = window.innerWidth / 2;
+let posY = window.innerHeight / 2;
+
+updatePosition();
+
+/* Update button position */
+function updatePosition() {
+    const rect = noBtn.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
+
+    posX = Math.max(0, Math.min(posX, maxX));
+    posY = Math.max(0, Math.min(posY, maxY));
+
+    noBtn.style.left = posX + "px";
+    noBtn.style.top = posY + "px";
+}
+
+/* Repel from cursor smoothly */
+document.addEventListener("mousemove", (e) => {
     if (!noBtnActive) return;
 
-    const range = 120;
+    const rect = noBtn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-    const randomX = (Math.random()-0.5) * range;
-    const randomY = (Math.random()-0.5) * range;
+    const dx = centerX - e.clientX;
+    const dy = centerY - e.clientY;
 
-    currentX += randomX;
-    currentY += randomY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
 
-    const maxX = window.innerWidth / 4;
-    const maxY = window.innerHeight / 4;
+    const triggerRadius = 150;
 
-    currentX = Math.max(-maxX, Math.min(currentX, maxX));
-    currentY = Math.max(-maxY, Math.min(currentY, maxY));
+    if (distance < triggerRadius) {
+        const force = (triggerRadius - distance) / triggerRadius;
+        const moveX = (dx / distance) * force * 25;
+        const moveY = (dy / distance) * force * 25;
 
-    noBtn.style.transform = `translate(${currentX}px, ${currentY}px)`;
-}
+        posX += moveX;
+        posY += moveY;
 
-function shrinkNoButton() {
-    let size = parseFloat(window.getComputedStyle(noBtn).fontSize);
-    noBtn.style.fontSize = Math.max(12, size * 0.9) + "px";
-}
-
-noBtn.addEventListener("mouseenter", () => {
-    moveNoButton();
-    shrinkNoButton();
+        updatePosition();
+    }
 });
 
+/* Mobile support */
+document.addEventListener("touchmove", (e) => {
+    if (!noBtnActive) return;
+    const touch = e.touches[0];
+    const rect = noBtn.getBoundingClientRect();
+
+    const dx = rect.left - touch.clientX;
+    const dy = rect.top - touch.clientY;
+
+    posX += dx * 0.02;
+    posY += dy * 0.02;
+
+    updatePosition();
+});
+
+/* Prevent click */
 noBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    moveNoButton();
-    shrinkNoButton();
-});
-
-noBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    moveNoButton();
-    shrinkNoButton();
+    e.stopPropagation();
 });
 
 /* YES CLICK */
@@ -247,10 +270,6 @@ yesBtn.addEventListener("click", () => {
     noBtnActive = false;
     body.classList.add("romantic-bg");
 
-    music.volume = 0.4;
-    music.play().catch(()=>{});
-
-    /* Confetti */
     const symbols = ['❤️','💖','💘','💕','💝'];
     for (let i = 0; i < 60; i++) {
         const confetti = document.createElement("div");
@@ -263,7 +282,6 @@ yesBtn.addEventListener("click", () => {
         setTimeout(()=>confetti.remove(),4000);
     }
 
-    /* Popup */
     const popup = document.createElement("div");
     popup.className = "popup";
     popup.innerHTML = "💌 I knew you would say YES ❤️<br><br>Happy Valentine's Day 🌹✨";
