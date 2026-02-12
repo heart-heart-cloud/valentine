@@ -190,8 +190,8 @@ document.addEventListener("mousemove", (e)=>{
     const distance = Math.sqrt(dx*dx + dy*dy);
 
     if(distance < 80){
-        const smallMoveX = (dx/distance) * 20;  // 4px movement
-        const smallMoveY = (dy/distance) * 20;
+        const smallMoveX = (dx/distance) * 40;  // 4px movement
+        const smallMoveY = (dy/distance) * 40;
         moveSlightly(smallMoveX, smallMoveY);
     }
 });
