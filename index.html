@@ -192,27 +192,22 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Make NO fully free */
+/* Smooth but fast movement setup */
 noBtn.style.position = "fixed";
 noBtn.style.zIndex = "9999";
-// Faster transition for better evasion
-noBtn.style.transition = "left 0.1s ease-out, top 0.1s ease-out";
+// Use a very fast transition to keep it "gliding"
+noBtn.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
 
-/* Random full-screen position */
 function randomPosition() {
-    const btnWidth = noBtn.offsetWidth || 80;
-    const btnHeight = noBtn.offsetHeight || 40;
-    const maxX = window.innerWidth - btnWidth;
-    const maxY = window.innerHeight - btnHeight;
-
+    const rect = noBtn.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
     noBtn.style.left = Math.random() * maxX + "px";
     noBtn.style.top = Math.random() * maxY + "px";
 }
 
-/* Start random */
 randomPosition();
 
-/* Track mouse */
 let mouseX = 0;
 let mouseY = 0;
 
@@ -221,7 +216,7 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.clientY;
 });
 
-/* THE UNTOUCHABLE ENGINE */
+/* THE UNSTOPPABLE GLIDE ENGINE */
 function repelLoop() {
     if (!noBtnActive) return;
 
@@ -233,28 +228,35 @@ function repelLoop() {
     const dy = centerY - mouseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // If mouse gets way too close (snuck up on it), teleport away
-    if (distance < 60) {
-        randomPosition();
-    } 
-    // Normal evasion
-    else if (distance < 200) {
+    // Detection zone: the closer you get, the further it pushes
+    if (distance < 250) {
         const angle = Math.atan2(dy, dx);
-        const moveDist = 300;
+        
+        // Dynamic push: if the user is super close, push harder
+        const force = distance < 80 ? 400 : 250; 
 
-        let newX = rect.left + Math.cos(angle) * moveDist;
-        let newY = rect.top + Math.sin(angle) * moveDist;
+        let newX = rect.left + Math.cos(angle) * force;
+        let newY = rect.top + Math.sin(angle) * force;
 
         const maxX = window.innerWidth - rect.width;
         const maxY = window.innerHeight - rect.height;
 
-        // If it hits a wall, DON'T stop, just jump to a new spot
-        if (newX <= 0 || newX >= maxX || newY <= 0 || newY >= maxY) {
-            randomPosition();
-        } else {
-            noBtn.style.left = newX + "px";
-            noBtn.style.top = newY + "px";
+        /* BOUNDARY BOUNCE: Instead of stopping at the wall, 
+           it "slides" along the edge or bounces away */
+        if (newX < 0) newX = 50;
+        if (newX > maxX) newX = maxX - 50;
+        if (newY < 0) newY = 50;
+        if (newY > maxY) newY = maxY - 50;
+
+        // If it's trapped in a corner (close to both edges), 
+        // force it to move toward the center
+        if ((newX <= 50 || newX >= maxX - 50) && (newY <= 50 || newY >= maxY - 50)) {
+            newX = window.innerWidth / 2 + (Math.random() * 100 - 50);
+            newY = window.innerHeight / 2 + (Math.random() * 100 - 50);
         }
+
+        noBtn.style.left = newX + "px";
+        noBtn.style.top = newY + "px";
     }
 
     requestAnimationFrame(repelLoop);
@@ -262,10 +264,14 @@ function repelLoop() {
 
 requestAnimationFrame(repelLoop);
 
-/* Block click and touch fully */
+/* Ultimate Block: If they manage a frame-perfect click, jump away */
+noBtn.addEventListener("mouseover", () => {
+    if (noBtnActive) randomPosition();
+});
+
 noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    randomPosition(); // Jump if they somehow manage to click
+    randomPosition();
 });
 
 /* YES CLICK */
