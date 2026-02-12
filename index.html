@@ -238,14 +238,6 @@
         </div>
     </div>
 
-    <!-- hidden audio element for romantic background music -->
-    <audio id="romanticMusic" loop preload="auto">
-        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
-        <!-- fallback short romantic loop from a free source, but due to restrictions we use a silent placeholder? 
-        We'll use an embed of a soft piano loop that exists (public domain example) -->
-        <source src="https://actions.google.com/sounds/v1/crowd_ambience/romantic_dinner_restaurant_ambience.ogg" type="audio/ogg">
-        Your browser loves you but doesn't support audio.
-    </audio>
 
     <script>
 (function(){
@@ -256,9 +248,9 @@ const body = document.body;
 const balloonContainer = document.getElementById("heartBalloonContainer");
 
 let noBtnActive = true;
-let hasEscaped = false;
+let escaped = false;
 
-/* Floating Hearts */
+/* Floating Hearts (unchanged) */
 for(let i=0;i<20;i++){
     const heart=document.createElement("div");
     heart.className="heart-balloon";
@@ -269,75 +261,52 @@ for(let i=0;i<20;i++){
     balloonContainer.appendChild(heart);
 }
 
-/* --- NO BUTTON ENGINE --- */
+/* --- Playful NO Button --- */
 
-let mouseX = 0;
-let mouseY = 0;
-
-document.addEventListener("mousemove", e=>{
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-});
-
-/* Make it fixed only AFTER first escape */
 function activateEscapeMode(){
-    if(hasEscaped) return;
+    if(escaped) return;
 
     const rect = noBtn.getBoundingClientRect();
     noBtn.style.position = "fixed";
     noBtn.style.left = rect.left + "px";
     noBtn.style.top = rect.top + "px";
+    noBtn.style.transition = "left .25s ease, top .25s ease";
     noBtn.style.zIndex = "9999";
-    noBtn.style.transition = "left 0.18s cubic-bezier(.17,.67,.83,.67), top 0.18s cubic-bezier(.17,.67,.83,.67)";
-    hasEscaped = true;
+    escaped = true;
 }
 
-/* Move somewhere random on screen */
-function moveRandom(){
+function slightMove(){
     const rect = noBtn.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width;
-    const maxY = window.innerHeight - rect.height;
 
-    const newX = Math.random() * maxX;
-    const newY = Math.random() * maxY;
+    const moveX = (Math.random() - 0.5) * 120; // small range
+    const moveY = (Math.random() - 0.5) * 80;
+
+    let newX = rect.left + moveX;
+    let newY = rect.top + moveY;
+
+    newX = Math.max(0, Math.min(newX, window.innerWidth - rect.width));
+    newY = Math.max(0, Math.min(newY, window.innerHeight - rect.height));
 
     noBtn.style.left = newX + "px";
     noBtn.style.top = newY + "px";
 }
 
-/* Continuous detection */
-function escapeLoop(){
+/* Escape only when trying to click */
+noBtn.addEventListener("mouseenter", ()=>{
     if(!noBtnActive) return;
+    activateEscapeMode();
+    slightMove();
+});
 
-    const rect = noBtn.getBoundingClientRect();
-    const centerX = rect.left + rect.width/2;
-    const centerY = rect.top + rect.height/2;
-
-    const dx = centerX - mouseX;
-    const dy = centerY - mouseY;
-    const distance = Math.sqrt(dx*dx + dy*dy);
-
-    const triggerRadius = 140;
-
-    if(distance < triggerRadius){
-        activateEscapeMode();
-        moveRandom();
-    }
-
-    requestAnimationFrame(escapeLoop);
-}
-
-requestAnimationFrame(escapeLoop);
-
-/* Completely block clicking */
+/* Completely prevent click */
 noBtn.addEventListener("pointerdown", e=>{
     e.preventDefault();
     e.stopImmediatePropagation();
 });
 
-/* YES BUTTON */
+/* YES CLICK */
 yesBtn.addEventListener("click", ()=>{
-    noBtnActive = false;
+    noBtnActive=false;
     body.classList.add("romantic-bg");
 
     for(let i=0;i<70;i++){
