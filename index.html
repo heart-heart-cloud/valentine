@@ -202,14 +202,38 @@ noBtn.addEventListener("click", (e)=>{
 });
 
 /* YES CLICK */
+/* YES CLICK - Romantic Upgrade */
 yesBtn.addEventListener("click", ()=>{
-    noBtnActive=false;
+    noBtnActive = false;
+
+    // Smooth fade out card
+    document.querySelector(".container").style.transition = "opacity 1s ease";
+    document.querySelector(".container").style.opacity = "0";
+
     body.classList.add("romantic-bg");
 
-    for(let i=0;i<60;i++){
+    // Big floating heart in center
+    const bigHeart = document.createElement("div");
+    bigHeart.innerHTML = "❤️";
+    bigHeart.style.position = "fixed";
+    bigHeart.style.fontSize = "6rem";
+    bigHeart.style.top = "50%";
+    bigHeart.style.left = "50%";
+    bigHeart.style.transform = "translate(-50%, -50%) scale(0)";
+    bigHeart.style.transition = "transform 0.8s ease";
+    bigHeart.style.zIndex = "10000";
+    document.body.appendChild(bigHeart);
+
+    setTimeout(()=>{
+        bigHeart.style.transform = "translate(-50%, -50%) scale(1)";
+    },100);
+
+    // Confetti explosion
+    const symbols = ['❤️','💖','💘','💕','💝'];
+    for(let i=0;i<80;i++){
         const confetti=document.createElement("div");
         confetti.className="confetti-heart";
-        confetti.textContent=["❤️","💖","💘","💕","💝"][Math.floor(Math.random()*5)];
+        confetti.textContent=symbols[Math.floor(Math.random()*symbols.length)];
         confetti.style.left=Math.random()*100+"%";
         confetti.style.fontSize=(1+Math.random()*2)+"rem";
         confetti.style.animationDuration=(2+Math.random()*2)+"s";
@@ -217,10 +241,13 @@ yesBtn.addEventListener("click", ()=>{
         setTimeout(()=>confetti.remove(),4000);
     }
 
-    const popup=document.createElement("div");
-    popup.className="popup";
-    popup.innerHTML="<p>💌 I knew you would say YES ❤️<br><br>Happy Valentine's Day 🌹✨</p>";
-    document.body.appendChild(popup);
+    // Romantic message
+    setTimeout(()=>{
+        const message=document.createElement("div");
+        message.className="popup";
+        message.innerHTML="<p style='font-size:2.2rem;'>💖 You Made My Day! 💖<br><br>Happy Valentine's Day 🌹✨</p>";
+        document.body.appendChild(message);
+    },900);
 
     noBtn.style.opacity="0.3";
     noBtn.style.pointerEvents="none";
