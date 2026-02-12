@@ -190,15 +190,10 @@ document.addEventListener("mousemove", (e)=>{
     const distance = Math.sqrt(dx*dx + dy*dy);
 
     if(distance < 80){
-        const smallMoveX = (dx/distance) * 10;  // 4px movement
-        const smallMoveY = (dy/distance) * 10;
+        const smallMoveX = (dx/distance) * 20;  // 4px movement
+        const smallMoveY = (dy/distance) * 20;
         moveSlightly(smallMoveX, smallMoveY);
     }
-});
-
-/* Also move when directly hovered */
-noBtn.addEventListener("mouseenter", ()=>{
-    moveSlightly((Math.random()-0.5)*12, (Math.random()-0.5)*12);
 });
 
 /* Prevent clicking */
