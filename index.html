@@ -178,7 +178,7 @@ const balloonContainer = document.getElementById("heartBalloonContainer");
 
 let noBtnActive = true;
 
-/* Floating heart balloons */
+/* Floating hearts */
 function createHeartBalloons() {
     const hearts = ['❤️','💖','💘','💕','💝','💓'];
     for (let i = 0; i < 20; i++) {
@@ -193,18 +193,17 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Make NO button fixed */
+/* Make NO fixed */
 noBtn.style.position = "fixed";
 noBtn.style.zIndex = "9999";
-noBtn.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+noBtn.style.transition = "left 0.12s linear, top 0.12s linear";
 
-/* Start centered */
+/* Initial position */
 let posX = window.innerWidth / 2;
 let posY = window.innerHeight / 2;
 
 updatePosition();
 
-/* Update button position */
 function updatePosition() {
     const rect = noBtn.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width;
@@ -217,55 +216,67 @@ function updatePosition() {
     noBtn.style.top = posY + "px";
 }
 
-/* Repel from cursor smoothly */
+/* Track cursor continuously */
+let mouseX = 0;
+let mouseY = 0;
+
 document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+/* Continuous repulsion engine */
+function repelLoop() {
     if (!noBtnActive) return;
 
     const rect = noBtn.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    const dx = centerX - e.clientX;
-    const dy = centerY - e.clientY;
+    const dx = centerX - mouseX;
+    const dy = centerY - mouseY;
 
     const distance = Math.sqrt(dx*dx + dy*dy);
 
-    const triggerRadius = 150;
+    const triggerRadius = 170;
 
     if (distance < triggerRadius) {
         const force = (triggerRadius - distance) / triggerRadius;
-        const moveX = (dx / distance) * force * 25;
-        const moveY = (dy / distance) * force * 25;
+
+        const moveX = (dx / distance) * force * 40;
+        const moveY = (dy / distance) * force * 40;
 
         posX += moveX;
         posY += moveY;
 
         updatePosition();
     }
-});
 
-/* Mobile support */
+    requestAnimationFrame(repelLoop);
+}
+
+requestAnimationFrame(repelLoop);
+
+/* Mobile */
 document.addEventListener("touchmove", (e) => {
     if (!noBtnActive) return;
     const touch = e.touches[0];
-    const rect = noBtn.getBoundingClientRect();
-
-    const dx = rect.left - touch.clientX;
-    const dy = rect.top - touch.clientY;
-
-    posX += dx * 0.02;
-    posY += dy * 0.02;
-
-    updatePosition();
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
 });
 
-/* Prevent click */
+/* Prevent click fully */
+noBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+});
+
 noBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    e.stopPropagation();
+    e.stopImmediatePropagation();
 });
 
-/* YES CLICK */
+/* YES click */
 yesBtn.addEventListener("click", () => {
     noBtnActive = false;
     body.classList.add("romantic-bg");
@@ -291,6 +302,5 @@ yesBtn.addEventListener("click", () => {
     noBtn.style.pointerEvents = "none";
 });
 </script>
-
 </body>
 </html>
