@@ -16,14 +16,14 @@
             background: radial-gradient(circle at 10% 30%, #ffe0f0, #ffc0cb);
             background-size: 200% 200%;
             min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden; /* FULL no scroll */
             position: relative;
             transition: background 2.2s ease, opacity 1.5s ease;
         }
-
         /* romantic overlay – when YES clicked, we add class .romantic-bg */
         body.romantic-bg {
             background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 60%, #ffe5b4 100%);
@@ -250,7 +250,7 @@ const balloonContainer = document.getElementById("heartBalloonContainer");
 let noBtnActive = true;
 let escaped = false;
 
-/* Floating Hearts (unchanged) */
+/* Floating Hearts */
 for(let i=0;i<20;i++){
     const heart=document.createElement("div");
     heart.className="heart-balloon";
@@ -261,7 +261,7 @@ for(let i=0;i<20;i++){
     balloonContainer.appendChild(heart);
 }
 
-/* --- Playful NO Button --- */
+/* --- Gentle Playable NO Button --- */
 
 function activateEscapeMode(){
     if(escaped) return;
@@ -270,7 +270,7 @@ function activateEscapeMode(){
     noBtn.style.position = "fixed";
     noBtn.style.left = rect.left + "px";
     noBtn.style.top = rect.top + "px";
-    noBtn.style.transition = "left .25s ease, top .25s ease";
+    noBtn.style.transition = "left 0.4s ease, top 0.4s ease"; /* SLOW */
     noBtn.style.zIndex = "9999";
     escaped = true;
 }
@@ -278,30 +278,29 @@ function activateEscapeMode(){
 function slightMove(){
     const rect = noBtn.getBoundingClientRect();
 
-    const moveX = (Math.random() - 0.5) * 120; // small range
-    const moveY = (Math.random() - 0.5) * 80;
+    const moveX = (Math.random() - 0.5) * 80;  // small movement
+    const moveY = (Math.random() - 0.5) * 50;  // small movement
 
     let newX = rect.left + moveX;
     let newY = rect.top + moveY;
 
-    newX = Math.max(0, Math.min(newX, window.innerWidth - rect.width));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - rect.height));
+    newX = Math.max(10, Math.min(newX, window.innerWidth - rect.width - 10));
+    newY = Math.max(10, Math.min(newY, window.innerHeight - rect.height - 10));
 
     noBtn.style.left = newX + "px";
     noBtn.style.top = newY + "px";
 }
 
-/* Escape only when trying to click */
+/* Only move when hover */
 noBtn.addEventListener("mouseenter", ()=>{
     if(!noBtnActive) return;
     activateEscapeMode();
     slightMove();
 });
 
-/* Completely prevent click */
+/* Prevent click */
 noBtn.addEventListener("pointerdown", e=>{
     e.preventDefault();
-    e.stopImmediatePropagation();
 });
 
 /* YES CLICK */
