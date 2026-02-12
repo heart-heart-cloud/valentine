@@ -248,301 +248,119 @@
     </audio>
 
     <script>
-        (function() {
-            "use strict";
+(function(){
 
-            // ---------- FLOATING HEART BALLOONS ----------
-            const balloonContainer = document.getElementById('heartBalloonContainer');
-            const bodyEl = document.getElementById('mainBody');
-            const noBtn = document.getElementById('noBtn');
-            const yesBtn = document.getElementById('yesBtn');
-            const mainCard = document.getElementById('mainCard');
-            const music = document.getElementById('romanticMusic');
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const body = document.body;
+const balloonContainer = document.getElementById("heartBalloonContainer");
 
-            // romantic sound source - we use a reliable, soft, royalty-friendly url
-            // set a proper romantic piece: "Romantic piano moment"
-            music.src = "https://www.fesliyanstudios.com/musicfiles/2019-04-12_-_Love_Story_-_David_Fesliyan.mp3";
-            // It's one of free royalty free romantic music, but to be safe if fails we fallback to short chime.
-            // Also preload and set volume low.
-            music.volume = 0.45;
-            music.loop = true;
+let noBtnActive = true;
+let hasEscaped = false;
 
-            // Generate 14 heart balloons with random left offset, duration, size, delay
-            function createHeartBalloons() {
-                for (let i = 0; i < 18; i++) {
-                    const heart = document.createElement('div');
-                    heart.className = 'heart-balloon';
-                    // mix of heart emojis and cute heart symbols
-                    const hearts = ['❤️', '🧡', '💖', '💗', '💓', '💕', '💞', '💘', '💝', '♥️'];
-                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-                    // random left position (1vw - 98vw)
-                    heart.style.left = Math.random() * 94 + 1 + 'vw';
-                    // random bottom offset to stagger start positions (some already up)
-                    heart.style.bottom = -(Math.random() * 20) + 'vh';
-                    // random font size
-                    const size = 1.8 + Math.random() * 2.2;
-                    heart.style.fontSize = size + 'rem';
-                    // random animation duration between 12s and 24s
-                    const duration = 12 + Math.floor(Math.random() * 16);
-                    heart.style.animation = `float ${duration}s infinite ease-in-out`;
-                    // delay so they don't all move together
-                    heart.style.animationDelay = Math.random() * 8 + 's';
-                    // slight opacity variation
-                    heart.style.opacity = 0.5 + Math.random() * 0.4;
-                    balloonContainer.appendChild(heart);
-                }
-            }
-            createHeartBalloons();
+/* Floating Hearts */
+for(let i=0;i<20;i++){
+    const heart=document.createElement("div");
+    heart.className="heart-balloon";
+    heart.textContent=["❤️","💖","💘","💕","💝","💓"][Math.floor(Math.random()*6)];
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.animationDuration=(12+Math.random()*10)+"s";
+    heart.style.fontSize=(1.5+Math.random()*2)+"rem";
+    balloonContainer.appendChild(heart);
+}
 
-            // ---------- EVASIVE NO BUTTON LOGIC ----------
-            // It randomly jumps + slightly shrinks each hover/click
+/* --- NO BUTTON ENGINE --- */
 
-            let shrinkCounter = 0;
-            const originalNoText = noBtn.textContent;
-            const originalFontSize = window.getComputedStyle(noBtn).fontSize;
-            const originalPadding = window.getComputedStyle(noBtn).padding;
-            let noBtnActive = true;
+let mouseX = 0;
+let mouseY = 0;
 
-            // function to get random position within viewport but keep button fully visible
-            function getRandomPosition() {
-                const btnWidth = noBtn.offsetWidth;
-                const btnHeight = noBtn.offsetHeight;
-                // avoid extreme edges
-                const maxLeft = window.innerWidth - btnWidth - 20;
-                const maxTop = window.innerHeight - btnHeight - 20;
-                const left = Math.max(10, Math.min(Math.random() * maxLeft, maxLeft));
-                const top = Math.max(10, Math.min(Math.random() * maxTop, maxTop));
-                return { left, top };
-            }
+document.addEventListener("mousemove", e=>{
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
 
-            // shrink NO button gradually
-            function shrinkNoButton() {
-                if (!noBtn.classList.contains('no')) return;
-                // each time shrink a bit – but keep it visible, at least 0.8rem
-                let currentFont = window.getComputedStyle(noBtn).fontSize;
-                let fontSizeVal = parseFloat(currentFont);
-                let newSize = Math.max(12, fontSizeVal * 0.88); // decrease 12% each time, min 12px
-                noBtn.style.fontSize = newSize + 'px';
+/* Make it fixed only AFTER first escape */
+function activateEscapeMode(){
+    if(hasEscaped) return;
 
-                let padL = window.getComputedStyle(noBtn).paddingLeft;
-                let padR = window.getComputedStyle(noBtn).paddingRight;
-                let padT = window.getComputedStyle(noBtn).paddingTop;
-                let padB = window.getComputedStyle(noBtn).paddingBottom;
+    const rect = noBtn.getBoundingClientRect();
+    noBtn.style.position = "fixed";
+    noBtn.style.left = rect.left + "px";
+    noBtn.style.top = rect.top + "px";
+    noBtn.style.zIndex = "9999";
+    noBtn.style.transition = "left 0.18s cubic-bezier(.17,.67,.83,.67), top 0.18s cubic-bezier(.17,.67,.83,.67)";
+    hasEscaped = true;
+}
 
-                let padLVal = parseFloat(padL);
-                let padTVal = parseFloat(padT);
-                // shrink padding proportionally
-                noBtn.style.paddingLeft = Math.max(8, padLVal * 0.9) + 'px';
-                noBtn.style.paddingRight = Math.max(8, parseFloat(padR) * 0.9) + 'px';
-                noBtn.style.paddingTop = Math.max(4, padTVal * 0.9) + 'px';
-                noBtn.style.paddingBottom = Math.max(4, parseFloat(padB) * 0.9) + 'px';
-            }
+/* Move somewhere random on screen */
+function moveRandom(){
+    const rect = noBtn.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
 
-            // move button to random location
-            function moveNoButton() {
-                if (!noBtnActive) return;
+    const newX = Math.random() * maxX;
+    const newY = Math.random() * maxY;
 
-                // add evasive class to enable absolute positioning within body
-                noBtn.classList.add('evasive');
+    noBtn.style.left = newX + "px";
+    noBtn.style.top = newY + "px";
+}
 
-                const { left, top } = getRandomPosition();
-                noBtn.style.left = left + 'px';
-                noBtn.style.top = top + 'px';
-                noBtn.style.position = 'absolute'; // ensure
-            }
+/* Continuous detection */
+function escapeLoop(){
+    if(!noBtnActive) return;
 
-            // event: hover (mouseenter) on NO
-            function evadeAndShrinkHandler(e) {
-                e.preventDefault?.();
-                if (!noBtnActive) return;
-                moveNoButton();
-                shrinkNoButton();
-            }
+    const rect = noBtn.getBoundingClientRect();
+    const centerX = rect.left + rect.width/2;
+    const centerY = rect.top + rect.height/2;
 
-            // click on NO should also move and shrink, and not trigger anything else
-            function noClickHandler(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!noBtnActive) return;
-                moveNoButton();
-                shrinkNoButton();
-                // also tiny extra jump: sometimes double move
-                setTimeout(() => {
-                    if (noBtnActive) moveNoButton();
-                }, 30);
-            }
+    const dx = centerX - mouseX;
+    const dy = centerY - mouseY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
 
-            // attach listeners
-            noBtn.addEventListener('mouseenter', evadeAndShrinkHandler);
-            noBtn.addEventListener('click', noClickHandler);
-            // for touch devices: when touched move away
-            noBtn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                evadeAndShrinkHandler(e);
-            });
+    const triggerRadius = 140;
 
-            // ensure NO button doesn't go outside on resize
-            window.addEventListener('resize', function() {
-                if (noBtnActive && noBtn.classList.contains('evasive')) {
-                    // reposition to keep within bounds
-                    const { left, top } = getRandomPosition();
-                    noBtn.style.left = left + 'px';
-                    noBtn.style.top = top + 'px';
-                }
-            });
+    if(distance < triggerRadius){
+        activateEscapeMode();
+        moveRandom();
+    }
 
-            // ---------- YES CLICK: ROMANTIC CELEBRATION ----------
-            function onYesClick(e) {
-                e.preventDefault();
-                if (!noBtnActive) return; // already clicked? but fine
+    requestAnimationFrame(escapeLoop);
+}
 
-                // disable further NO escape (optional)
-                noBtnActive = false;
+requestAnimationFrame(escapeLoop);
 
-                // 1) Fade background to romantic pink/red gradient
-                bodyEl.classList.add('romantic-bg');
+/* Completely block clicking */
+noBtn.addEventListener("pointerdown", e=>{
+    e.preventDefault();
+    e.stopImmediatePropagation();
+});
 
-                // 2) Floating hearts like confetti – generate many
-                for (let i = 0; i < 70; i++) {
-                    createConfettiHeart();
-                }
+/* YES BUTTON */
+yesBtn.addEventListener("click", ()=>{
+    noBtnActive = false;
+    body.classList.add("romantic-bg");
 
-                // 3) Start soft romantic background music
-                music.play().catch(err => {
-                    // autoplay may be blocked; we try again with user interaction? but already clicking.
-                    console.log('music play prevented, trying again', err);
-                    // attempt again after a tiny delay
-                    setTimeout(() => music.play(), 200);
-                });
+    for(let i=0;i<70;i++){
+        const confetti=document.createElement("div");
+        confetti.className="confetti-heart";
+        confetti.textContent=["❤️","💖","💘","💕","💝"][Math.floor(Math.random()*5)];
+        confetti.style.left=Math.random()*100+"%";
+        confetti.style.fontSize=(1+Math.random()*2)+"rem";
+        confetti.style.animationDuration=(2+Math.random()*2)+"s";
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),4000);
+    }
 
-                // 4) Cute animated popup message
-                showPopupMessage();
+    const popup=document.createElement("div");
+    popup.className="popup";
+    popup.innerHTML="<p>💌 I knew you would say YES ❤️<br><span>Happy Valentine's Day My Love 🌹✨</span></p>";
+    document.body.appendChild(popup);
 
-                // 5) (bonus) remove or hide NO button? keep but can't be pressed, but we make it less visible
-                noBtn.style.opacity = '0.3';
-                noBtn.style.pointerEvents = 'none'; // make it inert
-                noBtn.disabled = true;
-                yesBtn.style.transform = 'scale(1.2)';
-                yesBtn.style.background = '#ff1654';
-            }
+    noBtn.style.opacity="0.3";
+    noBtn.style.pointerEvents="none";
+});
 
-            function createConfettiHeart() {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti-heart';
-                const symbols = ['❤️', '💖', '💘', '💝', '♥️', '💗', '💓', '💕'];
-                confetti.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = -10 + Math.random() * 20 + '%'; // start above viewport
-                confetti.style.fontSize = (1.2 + Math.random() * 2.5) + 'rem';
-                confetti.style.animationDuration = 2 + Math.random() * 3 + 's';
-                confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                bodyEl.appendChild(confetti);
-
-                // remove after animation ends to avoid overflow
-                setTimeout(() => {
-                    confetti.remove();
-                }, 5000);
-            }
-
-            function showPopupMessage() {
-                // remove any existing popup
-                const oldPopup = document.querySelector('.popup');
-                if (oldPopup) oldPopup.remove();
-
-                const popupDiv = document.createElement('div');
-                popupDiv.className = 'popup';
-                popupDiv.innerHTML = `
-                    <p>💌 I knew you would say YES ❤️<br>
-                    <span style="font-size:1.8rem; margin-top:25px;">Happy Valentine's Day My Love</span> 🌹✨</p>
-                `;
-                bodyEl.appendChild(popupDiv);
-
-                // Auto hide after 6 seconds? no, it's cute we keep it. But add little close? Not necessary.
-                // Add a small close X? but better keep it, stays romantic.
-                // However for mobile we can let it stay.
-                // Optional: click anywhere on popup to dismiss? but not required.
-                // We'll add a small fading close after 10 seconds? fine.
-                setTimeout(() => {
-                    if (popupDiv) {
-                        popupDiv.style.transition = 'opacity 1.5s';
-                        popupDiv.style.opacity = '0';
-                        setTimeout(() => popupDiv.remove(), 2000);
-                    }
-                }, 8000);
-            }
-
-            yesBtn.addEventListener('click', onYesClick);
-            yesBtn.addEventListener('touchstart', onYesClick, { passive: false });
-
-            // extra: keep generating few more heart balloons every now and then (refresh)
-            setInterval(() => {
-                if (balloonContainer.children.length < 25) {
-                    // add one occasionally
-                    const heart = document.createElement('div');
-                    heart.className = 'heart-balloon';
-                    heart.textContent = ['❤️', '💖', '💗', '💞'][Math.floor(Math.random() * 4)];
-                    heart.style.left = Math.random() * 94 + 1 + 'vw';
-                    heart.style.bottom = '0vh';
-                    heart.style.fontSize = 1.8 + Math.random() * 2 + 'rem';
-                    heart.style.animation = `float ${12 + Math.floor(Math.random() * 16)}s infinite ease-in-out`;
-                    heart.style.animationDelay = Math.random() * 5 + 's';
-                    balloonContainer.appendChild(heart);
-                }
-            }, 5000);
-
-            // ensure no button starts static and doesn't overlap
-            window.addEventListener('load', function() {
-                // small adjustment: set initial NO state
-                noBtn.style.position = 'relative'; // initial static
-                noBtn.classList.remove('evasive');
-            });
-
-            // for mobile: keep no button from getting hidden under other elements
-            // give wrapper relative so absolute no btn can escape
-            document.querySelector('.button-wrapper').style.position = 'relative';
-        })();
-    </script>
-
-    <!-- small inline style to ensure container is above balloons -->
-    <style>
-        #heartBalloonContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .container { z-index: 20; position: relative; }
-        body.romantic-bg .container {
-            background: rgba(255, 230, 240, 0.7);
-            border: 2px solid rgba(255, 120, 160, 0.8);
-            box-shadow: 0 0 70px rgba(255, 80, 140, 0.5);
-        }
-        .btn { cursor: pointer; }
-        .no { transition: left 0.15s, top 0.15s, font-size 0.1s, padding 0.1s, background 0.2s; }
-        /* Make sure confetti on top */
-        .confetti-heart { z-index: 10001; }
-        .popup { z-index: 100000; }
-        audio { display: none; }
-    </style>
-
-    <!-- Additional fix for audio: cross-origin, but it's okay if fails; we can use Web Audio API but not needed, we use source. -->
-    <!-- due to possible CORS or missing mp3 we add inline fallback: use a tiny base64? better to use a silent mp3? but we embed an accessible royalty-free piano music from fesliyan (allowed) -->
-    <!-- Since embedding external mp3 might have SSL issues? But we added fesliyan which is https, many use it. If not loaded, fine, user may have no music. -->
-    <!-- also attach second source: -->
-    <script>
-        (function secondAudioFallback() {
-            // sometimes the mp3 fails, we replace with an ogg from a reliable source if error
-            const music = document.getElementById('romanticMusic');
-            music.addEventListener('error', function() {
-                console.log('music src error, loading alternative');
-                music.src = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'; // short but sweet
-                music.volume = 0.2;
-                music.loop = true;
-            });
-        })();
-    </script>
+})();
+</script>
 </body>
 </html>
