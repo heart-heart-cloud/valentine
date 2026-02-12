@@ -168,8 +168,6 @@ audio {
         <button class="btn no" id="noBtn">NO</button>
     </div>
 </div>
-
-
 <script>
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.getElementById("yesBtn");
@@ -193,30 +191,25 @@ function createHeartBalloons() {
 }
 createHeartBalloons();
 
-/* Make NO fixed */
+/* Make NO fully independent of container */
 noBtn.style.position = "fixed";
 noBtn.style.zIndex = "9999";
-noBtn.style.transition = "left 0.12s linear, top 0.12s linear";
+noBtn.style.transition = "left 0.18s ease-out, top 0.18s ease-out";
 
-/* Initial position */
-let posX = window.innerWidth / 2;
-let posY = window.innerHeight / 2;
+/* Start random */
+randomPosition();
 
-updatePosition();
-
-function updatePosition() {
+/* Random position anywhere */
+function randomPosition() {
     const rect = noBtn.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width;
     const maxY = window.innerHeight - rect.height;
 
-    posX = Math.max(0, Math.min(posX, maxX));
-    posY = Math.max(0, Math.min(posY, maxY));
-
-    noBtn.style.left = posX + "px";
-    noBtn.style.top = posY + "px";
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top = Math.random() * maxY + "px";
 }
 
-/* Track cursor continuously */
+/* Track cursor */
 let mouseX = 0;
 let mouseY = 0;
 
@@ -225,7 +218,7 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.clientY;
 });
 
-/* Continuous repulsion engine */
+/* Repel engine */
 function repelLoop() {
     if (!noBtnActive) return;
 
@@ -236,20 +229,28 @@ function repelLoop() {
     const dx = centerX - mouseX;
     const dy = centerY - mouseY;
 
-    const distance = Math.sqrt(dx*dx + dy*dy);
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
-    const triggerRadius = 170;
+    const triggerRadius = 200; // larger reaction zone
 
     if (distance < triggerRadius) {
-        const force = (triggerRadius - distance) / triggerRadius;
+        // Move far in opposite direction
+        const angle = Math.atan2(dy, dx);
 
-        const moveX = (dx / distance) * force * 40;
-        const moveY = (dy / distance) * force * 40;
+        const escapeDistance = 180; // how far it jumps
 
-        posX += moveX;
-        posY += moveY;
+        let newX = rect.left + Math.cos(angle) * escapeDistance;
+        let newY = rect.top + Math.sin(angle) * escapeDistance;
 
-        updatePosition();
+        // Keep inside full screen
+        const maxX = window.innerWidth - rect.width;
+        const maxY = window.innerHeight - rect.height;
+
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+
+        noBtn.style.left = newX + "px";
+        noBtn.style.top = newY + "px";
     }
 
     requestAnimationFrame(repelLoop);
@@ -257,26 +258,13 @@ function repelLoop() {
 
 requestAnimationFrame(repelLoop);
 
-/* Mobile */
-document.addEventListener("touchmove", (e) => {
-    if (!noBtnActive) return;
-    const touch = e.touches[0];
-    mouseX = touch.clientX;
-    mouseY = touch.clientY;
-});
-
-/* Prevent click fully */
+/* Block clicks completely */
 noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
 });
 
-noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-});
-
-/* YES click */
+/* YES CLICK */
 yesBtn.addEventListener("click", () => {
     noBtnActive = false;
     body.classList.add("romantic-bg");
@@ -302,5 +290,6 @@ yesBtn.addEventListener("click", () => {
     noBtn.style.pointerEvents = "none";
 });
 </script>
+
 </body>
 </html>
